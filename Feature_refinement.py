@@ -51,10 +51,16 @@ class TextStatsTransformer(BaseEstimator, TransformerMixin):  # 16
 tfidf_word = TfidfVectorizer(ngram_range=(1,2), min_df=1, max_df=0.95)   # 33
 tfidf_char = TfidfVectorizer(analyzer='char', ngram_range=(3,5), min_df=1, max_df=0.95)  # 34
 #TF-IDF Analyse nimmt die Anzahl eines Wortes innerhalb eines einzelnen Dokuments (TF), und multipliziert diesen mit
-#der Häufigkeit des Wortes in einem gesamten Korpus (Je seltener das Wort außerhalb des Dokuments, desto höher
+#der Häufigkeit des Wortes in einem gesamten Korpus(IDF) (Je seltener das Wort außerhalb des Dokuments, desto höher
 #ist der IDF-Wert
 #KI nutzt den TF-IDF Wert innerhalb des geasmten Korpuses -> "Gewinn" ist ein eher seltenes Wort in ALLEN Test Emails
 #-> Aber immer, wenn dieses Wort vorkommt, ist es Spam -> hoher Zusammenhang (das passiert beim Training)
+#ngram_range = (1,2) : Sowohl einzelne Wörter werden betrachtet, als auch Zweierpaare
+#Bsp: "buy now offer" -> unigramme: "buy", "now", "offer", Bigramme : "buy now", "now offer"
+#min_df = 1 : Das Wort muss mindestens in "1" Dokument vorkommen, um berücksichtigt zu werden
+#max_df = 0.95 : Wort wird ignoriert, wenn es in mehr als 95% der DOkumente vorkommt
+#min_df und max_df beziehen sich auf gesamten Korpus,
+#während ngram_range und analyzer bestimmen, wie jedes Dokument in Beusteine zerlegt wird
 
 # 35  FeatureUnion kombiniert die unterschiedlichen Feature-Quellen (Wörter, Character, Handgemachte)
 features = FeatureUnion([
