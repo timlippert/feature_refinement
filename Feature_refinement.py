@@ -37,15 +37,21 @@ class TextStatsTransformer(BaseEstimator, TransformerMixin):  # 16
         Features = []                                       # 22
         for doc in X:                                       # 23
             # Grundlegende Zähl-Features:
-            length = len(doc)                               # 24  # Zeichenanzahl
-            exclam = doc.count('!')                         # 25  # Anzahl Ausrufezeichen
-            urls = len(re.findall(r"http[s]?://|www\.", doc))  # 26  # einfache URL-Erkennung
-            digits = sum(c.isdigit() for c in doc)          # 27  # Ziffern zählen
-            upper_words = sum(1 for w in doc.split() if w.isupper())  # 28  # GROSS geschriebene Wörter
+            length = len(doc)
+            #Länge des Textes
+            exclam = doc.count('!')
+            # Anzahl Ausrufezeichen
+            urls = len(re.findall(r"http[s]?://|www\.", doc))
+            # einfache URL-Erkennung
+            digits = sum(c.isdigit() for c in doc)
+            # Ziffern zählen
+            upper_words = sum(1 for w in doc.split() if w.isupper())
+            # GROSS geschriebene Wörter
+            upper_ratio = (sum(1 for c in doc if c.isupper()) / max(1, length))
             # Verhältnis Großbuchstaben (0..1)
-            upper_ratio = (sum(1 for c in doc if c.isupper()) / max(1, length))  # 29
-            features.append([length, exclam, urls, digits, upper_words, upper_ratio])  # 30
-        return np.array(features)                           # 31
+            Features.append([length, exclam, urls, digits, upper_words, upper_ratio])  # 30
+        return np.array(Features)
+        # Macht aus den Features ein np Array, mit jeder Zeile als Dokument, jeder Spalte als feature
 
 # 32  Zwei TF-IDF Vektorisierer: Wort-ngrams und char-ngrams (fangen unterschiedliche Muster ein)
 tfidf_word = TfidfVectorizer(ngram_range=(1,2), min_df=1, max_df=0.95)   # 33
@@ -80,7 +86,10 @@ pipe = Pipeline([
 X_train, X_test, y_train, y_test = train_test_split(df['text'], df['label'], test_size=0.33, random_state=42)  # 46
 
 # 47  Modell trainieren
-pipe.fit(X_train, y_train)  # 48
+pipe.fit(X_train, y_train)
+# Hier passiert: tf_idf_word wandelt Worte in den tf-idf wert
+# tfidf_char wandelt Buchstaben in tf-idf Wert um
+# Textstatstransformer baut die Features zusammen -> erstellt eine große Feature Matrix
 
 # 49  Vorhersage und Evaluation
 y_pred = pipe.predict(X_test)  # 50
